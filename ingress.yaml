@@ -17,3 +17,30 @@ spec:
             name: my-app-service   # target service name
             port:
               number: 80
+
+
+
+-----
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  tls:
+  - hosts:
+    - myapp.example.com
+    secretName: myapp-tls-secret   # Kubernetes TLS secret
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: my-app-service
+            port:
+              number: 80
