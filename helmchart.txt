@@ -1,0 +1,12 @@
+mychart/
+├── Chart.yaml           # Chart metadata (name, version, description, type)
+├── values.yaml          # Default configuration values (user can override)
+├── charts/              # Subcharts (dependencies)
+├── templates/           # Kubernetes resource templates
+│   ├── deployment.yaml  # Template for Deployment
+│   ├── service.yaml     # Template for Service
+│   ├── ingress.yaml     # Template for Ingress
+│   ├── _helpers.tpl     # Template helpers (functions/macros)
+│   ├── hpa.yaml         # Template for HorizontalPodAutoscaler (optional)
+│   └── NOTES.txt        # Instructions shown after install
+└── .helmignore          # Files to ignore when packaging chart
