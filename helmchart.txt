@@ -10,3 +10,105 @@ mychart/
 │   ├── hpa.yaml         # Template for HorizontalPodAutoscaler (optional)
 │   └── NOTES.txt        # Instructions shown after install
 └── .helmignore          # Files to ignore when packaging chart
+
+
+# -------------------------
+# HELM COMMANDS
+# -------------------------
+
+# Create a new Helm chart
+helm create mychart
+
+# Install a chart
+helm install <release-name> ./mychart
+
+# Install with custom values
+helm install <release-name> ./mychart -f custom-values.yaml
+
+# Upgrade a release
+helm upgrade <release-name> ./mychart
+
+# Upgrade with custom values
+helm upgrade <release-name> ./mychart -f custom-values.yaml
+
+# Rollback to previous release
+helm rollback <release-name> <revision-number>
+
+# Uninstall (delete) a release
+helm uninstall <release-name>
+
+# List all releases
+helm list
+
+# Show release history
+helm history <release-name>
+
+# Template chart locally (render manifests without applying)
+helm template <release-name> ./mychart
+
+# Lint (validate) a chart
+helm lint ./mychart
+
+# Package a chart into a .tgz file
+helm package ./mychart
+
+# Add a repo
+helm repo add <repo-name> <repo-url>
+
+# Update repo
+helm repo update
+
+# Search chart in repo
+helm search repo <chart-name>
+
+# Show chart values
+helm show values <repo-name>/<chart-name>
+
+
+# -------------------------
+# KUBERNETES COMMANDS
+# -------------------------
+
+# Apply a manifest (create/update resources)
+kubectl apply -f <file>.yaml
+
+# Delete a manifest
+kubectl delete -f <file>.yaml
+
+# Get resources
+kubectl get pods
+kubectl get svc
+kubectl get ingress
+kubectl get deployments
+
+# Describe a resource (detailed info)
+kubectl describe pod <pod-name>
+kubectl describe deployment <deployment-name>
+
+# Check logs
+kubectl logs <pod-name>
+kubectl logs -f <pod-name>        # follow logs
+
+# Exec into a container
+kubectl exec -it <pod-name> -- /bin/sh
+
+# Rollout status (check deployment progress)
+kubectl rollout status deployment/<deployment-name>
+
+# Rollback a deployment
+kubectl rollout undo deployment/<deployment-name>
+
+# Restart a deployment
+kubectl rollout restart deployment/<deployment-name>
+
+# Scale a deployment
+kubectl scale deployment/<deployment-name> --replicas=3
+
+# Get all resources in namespace
+kubectl get all -n <namespace>
+
+# Switch context (change cluster)
+kubectl config use-context <context-name>
+
+# View current context
+kubectl config current-context
