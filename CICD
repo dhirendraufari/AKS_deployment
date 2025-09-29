@@ -1,0 +1,73 @@
+trigger:
+  branches:
+    include:
+      - main  # aap apna branch naam dal sakte ho
+
+variables:
+  ACR_NAME: "myacrname"               # Azure Container Registry name
+  IMAGE_NAME: "myapp"                 # Image name
+  IMAGE_TAG: "$(Build.BuildId)"       # Unique tag per build
+  HELM_CHART_PATH: "helm/myapp"       # Helm chart ka folder path
+  AKS_NAMESPACE: "default"            # Namespace jahan deploy karna hai
+
+stages:
+# ---------- CI STAGE ----------
+- stage: Build
+  displayName: "Build and Push Docker Image"
+  jobs:
+    - job: Build
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+        - checkout: self
+
+        - task: Docker@2
+          displayName: Build and Push to ACR
+          inputs:
+            containerRegistry: 'ACR-SC'   # Azure DevOps me banaya hua ACR service connection
+            repository: $(IMAGE_NAME)
+            command: buildAndPush
+            Dockerfile: '**/Dockerfile'
+            tags: |
+              $(IMAGE_TAG)
+
+        - publish: $(HELM_CHART_PATH)
+          artifact: helm-chart
+
+# ---------- CD STAGE ----------
+- stage: Deploy
+  displayName: "Deploy to AKS using Helm"
+  dependsOn: Build
+  jobs:
+    - deployment: DeployToAKS
+      environment: "dev"   # environment name in Azure DevOps
+      pool:
+        vmImage: 'ubuntu-latest'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - download: current
+                artifact: helm-chart
+
+              - task: HelmInstaller@1
+                inputs:
+                  helmVersionToInstall: 'latest'
+
+              - task: HelmDeploy@0
+                displayName: Deploy Helm Chart to AKS
+                inputs:
+                  connectionType: 'Azure Resource Manager'
+                  azureSubscription: 'AKS-SC' # Azure Service connection for AKS
+                  azureResourceGroup: 'myResourceGroup'
+                  kubernetesCluster: 'myAksCluster'
+                  namespace: $(AKS_NAMESPACE)
+                  command: upgrade
+                  chartType: FilePath
+                  chartPath: $(Pipeline.Workspace)/helm-chart
+                  releaseName: myapp-release
+                  valueFile: values.yaml
+                  install: true
+                  arguments: >
+                    --set image.repository=$(ACR_NAME).azurecr.io/$(IMAGE_NAME)
+                    --set image.tag=$(IMAGE_TAG)
