@@ -89,6 +89,15 @@ kubectl describe deployment <deployment-name>
 kubectl logs <pod-name>
 kubectl logs -f <pod-name>        # follow logs
 
+
+
+##Check Deployment History
+kubectl rollout history deployment <deployment-name>
+
+#Check logs of container in side pod 
+kubectl logs <pod-name> -c <container-name>
+
+
 # Exec into a container
 kubectl exec -it <pod-name> -- /bin/sh
 
