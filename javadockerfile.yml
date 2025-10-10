@@ -1,0 +1,43 @@
+##############################
+# Stage 1: Build the application
+##############################
+FROM maven:3.9.8-eclipse-temurin-17 AS builder
+
+# Set working directory inside the container
+WORKDIR /app
+
+# Copy Maven configuration and download dependencies first (for caching)
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source code
+COPY src ./src
+
+# Build the application (skip tests for faster build)
+RUN mvn clean package -DskipTests
+
+##############################
+# Stage 2: Create the runtime image
+##############################
+FROM eclipse-temurin:17-jre-jammy
+
+# Create a non-root user and group
+RUN groupadd --system appgroup && useradd --system --create-home --gid appgroup appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy the jar file from builder stage
+COPY --from=builder /app/target/*.jar /app/app.jar
+
+# Change ownership
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose port (adjust as per your app)
+EXPOSE 8080
+
+# Start the app
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
