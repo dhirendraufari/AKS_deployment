@@ -56,3 +56,59 @@ FROM mcr.microsoft.com/dotnet/runtime:7.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "WorkerApp.dll"]
+
+
+#############################################
+# Stage 1: Build React App (Node.js)
+#############################################
+FROM node:20-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files first (to leverage Docker cache)
+COPY package*.json ./
+
+# Install only production dependencies (no dev deps)
+RUN npm ci --only=production
+
+# Copy source code
+COPY . .
+
+# Build optimized static files
+RUN npm run build
+
+
+#############################################
+# Stage 2: Serve Static Files with NGINX (Non-root)
+#############################################
+FROM nginx:1.27-alpine
+
+# Create a non-root user and group
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Remove default nginx configuration
+RUN rm -rf /etc/nginx/conf.d/*
+
+# Copy custom secure nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy build output from builder stage
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Change ownership of nginx directories to non-root user
+RUN chown -R appuser:appgroup /usr/share/nginx /var/cache/nginx /var/run /etc/nginx
+
+# Use non-root user
+USER appuser
+
+# Expose app port
+EXPOSE 8080
+
+# Apply metadata
+LABEL maintainer="devops@company.com" \
+      version="1.0.0" \
+      description="React Frontend (Secure Non-Root Docker Image)"
+
+# Start NGINX (using non-root)
+CMD ["nginx", "-g", "daemon off;"]
