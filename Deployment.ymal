@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-frontend
+  namespace: demo-app
+  labels:
+    app: react-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: react-frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+
+  template:
+    metadata:
+      labels:
+        app: react-frontend
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+
+      containers:
+        - name: react-frontend
+          image: myregistry.azurecr.io/react-frontend:v1.0.0
+          imagePullPolicy: IfNotPresent
+          
+          ports:
+            - containerPort: 3000
+
+          env:
+            - name: API_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: apiBaseUrl
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: frontend-secrets
+                  key: apiKey
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          volumeMounts:
+            - name: app-logs
+              mountPath: /usr/src/app/logs
+
+      volumes:
+        - name: app-logs
+          emptyDir: {}
+
+      imagePullSecrets:
+        - name: myregistry-secret
