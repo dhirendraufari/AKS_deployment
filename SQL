@@ -1,0 +1,24 @@
+| Command                                               | Purpose                                         | Example |
+| ----------------------------------------------------- | ----------------------------------------------- | ------- |
+| `CREATE DATABASE dbname;`                             | Naya database create kare                       |         |
+| `CREATE TABLE table_name (id INT, name VARCHAR(50));` | Nayi table banaye                               |         |
+| `ALTER TABLE table_name ADD COLUMN salary INT;`       | Table me column add kare                        |         |
+| `ALTER TABLE table_name DROP COLUMN salary;`          | Column delete kare                              |         |
+| `RENAME TABLE old_name TO new_name;`                  | Table rename kare                               |         |
+| `DROP TABLE table_name;`                              | Table delete kare                               |         |
+| `TRUNCATE TABLE table_name;`                          | Saare records delete kare (structure same rahe) |         |
+| Command                                                         | Purpose                 | Example |
+| --------------------------------------------------------------- | ----------------------- | ------- |
+| `INSERT INTO emp (id, name, salary) VALUES (1, 'Amit', 50000);` | Naya record insert kare |         |
+| `UPDATE emp SET salary = 60000 WHERE id = 1;`                   | Record update kare      |         |
+| `DELETE FROM emp WHERE id = 1;`                                 | Record delete kare      |         |
+| Command                                                                       | Purpose               | Example |
+| ----------------------------------------------------------------------------- | --------------------- | ------- |
+| `SELECT * FROM emp;`                                                          | Saare records dikhaye |         |
+| `SELECT name, salary FROM emp;`                                               | Specific columns      |         |
+| `SELECT * FROM emp WHERE salary > 50000;`                                     | Filter kare           |         |
+| `SELECT * FROM emp ORDER BY salary DESC;`                                     | Sorting               |         |
+| `SELECT * FROM emp LIMIT 5;`                                                  | Top 5 rows            |         |
+| `SELECT COUNT(*), AVG(salary) FROM emp;`                                      | Aggregate functions   |         |
+| `SELECT dept, AVG(salary) FROM emp GROUP BY dept;`                            | Group karna           |         |
+| `SELECT dept, AVG(salary) FROM emp GROUP BY dept HAVING AVG(salary) > 40000;` | Group filter karna    |         |
