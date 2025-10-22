@@ -1,0 +1,44 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sample-app-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: sample.myapp.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sample-app-service
+            port:
+              number: 80
+
+
+==========================
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: appgw-ingress
+  namespace: default
+  annotations:
+    appgw.ingress.kubernetes.io/use-private-ip: "false"
+spec:
+  ingressClassName: azure-application-gateway
+  rules:
+  - host: app.mydomain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: myapp-service
+            port:
+              number: 80
